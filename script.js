@@ -3,6 +3,7 @@ const statusEl = document.getElementById("status");
 const stayBtn = document.getElementById("stayBtn");
 const switchBtn = document.getElementById("switchBtn");
 const resetBtn = document.getElementById("resetBtn");
+const doorCountInput = document.getElementById("doorCount");
 
 const gamesEl = document.getElementById("games");
 const stayWinsEl = document.getElementById("stayWins");
@@ -15,6 +16,14 @@ const stats = {
 };
 
 let state = {};
+
+function getDoorCount() {
+  const value = Number.parseInt(doorCountInput.value, 10);
+  if (Number.isNaN(value)) {
+    return 3;
+  }
+  return Math.min(30, Math.max(3, value));
+}
 
 function randomInt(max) {
   return Math.floor(Math.random() * max);
@@ -29,7 +38,7 @@ function updateStats() {
 function renderBoard(revealAll = false) {
   boardEl.innerHTML = "";
 
-  for (let i = 0; i < 3; i += 1) {
+  for (let i = 0; i < state.doorCount; i += 1) {
     const button = document.createElement("button");
     button.className = "door";
     button.textContent = `Porte ${i + 1}`;
@@ -55,11 +64,16 @@ function renderBoard(revealAll = false) {
 }
 
 function startGame() {
-  const carDoor = randomInt(3);
-  const prizes = ["goat", "goat", "goat"];
+  const doorCount = getDoorCount();
+  const carDoor = randomInt(doorCount);
+  const prizes = Array(doorCount).fill("goat");
   prizes[carDoor] = "car";
 
+  const columns = Math.min(6, Math.ceil(Math.sqrt(doorCount)));
+  boardEl.style.setProperty("--door-columns", String(columns));
+
   state = {
+    doorCount,
     prizes,
     phase: "pick",
     selectedDoor: null,
@@ -74,12 +88,16 @@ function startGame() {
 }
 
 function hostOpensDoor() {
-  const options = [0, 1, 2].filter(
+  const options = Array.from({ length: state.doorCount }, (_, idx) => idx).filter(
     (idx) => idx !== state.selectedDoor && state.prizes[idx] === "goat",
   );
-  const opened = options[randomInt(options.length)];
-  state.openedDoors.push(opened);
-  state.hostOpenedDoor = opened;
+
+  const doorToKeepClosed = options[randomInt(options.length)];
+  const doorsToOpen = options.filter((idx) => idx !== doorToKeepClosed);
+
+  state.openedDoors = doorsToOpen;
+  state.hostOpenedDoor = doorsToOpen[0] ?? null;
+  state.remainingClosedDoor = doorToKeepClosed;
 }
 
 function pickDoor(doorIndex) {
@@ -94,7 +112,7 @@ function pickDoor(doorIndex) {
   stayBtn.disabled = false;
   switchBtn.disabled = false;
   statusEl.textContent =
-    "Le maître du jeu ouvre une porte avec une chèvre. Garde ta porte ou change ?";
+    "Le maître du jeu ouvre toutes les portes chèvres sauf une. Garde ta porte ou change ?";
   renderBoard();
 }
 
@@ -106,9 +124,7 @@ function finishGame(strategy) {
   let finalDoor = state.selectedDoor;
 
   if (strategy === "switch") {
-    finalDoor = [0, 1, 2].find(
-      (idx) => idx !== state.selectedDoor && idx !== state.hostOpenedDoor,
-    );
+    finalDoor = state.remainingClosedDoor;
   }
 
   const win = state.prizes[finalDoor] === "car";
@@ -116,7 +132,7 @@ function finishGame(strategy) {
   state.selectedDoor = finalDoor;
   state.phase = "finished";
 
-  state.openedDoors = [0, 1, 2];
+  state.openedDoors = Array.from({ length: state.doorCount }, (_, idx) => idx);
   renderBoard(true);
 
   stats.games += 1;
@@ -140,6 +156,7 @@ function finishGame(strategy) {
 stayBtn.addEventListener("click", () => finishGame("stay"));
 switchBtn.addEventListener("click", () => finishGame("switch"));
 resetBtn.addEventListener("click", startGame);
+doorCountInput.addEventListener("change", startGame);
 
 startGame();
 updateStats();
