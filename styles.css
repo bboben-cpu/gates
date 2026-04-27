@@ -33,7 +33,7 @@ h2 {
 
 .board {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(var(--door-columns, 3), minmax(110px, 1fr));
   gap: 0.8rem;
   margin-block: 1rem;
 }
@@ -73,6 +73,20 @@ h2 {
 
 .controls {
   margin-bottom: 1rem;
+}
+
+.door-count {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
+}
+
+.door-count input {
+  width: 80px;
+  border-radius: 8px;
+  border: none;
+  padding: 0.4rem 0.5rem;
 }
 
 .actions {
