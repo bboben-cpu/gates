@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Jeu des portes (Monty Hall)</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <main class="container">
+      <h1>Jeu des portes</h1>
+      <p class="intro">
+        Derrière 3 portes se cachent 2 chèvres 🐐 et 1 voiture 🚗. Choisis une
+        porte, puis décide si tu changes après l'indice du maître du jeu.
+      </p>
+
+      <section class="board" id="board" aria-label="Portes du jeu"></section>
+
+      <section class="controls">
+        <p id="status">Sélectionne une porte pour commencer.</p>
+        <div class="actions">
+          <button id="stayBtn" disabled>Garder ma porte</button>
+          <button id="switchBtn" disabled>Changer de porte</button>
+          <button id="resetBtn">Nouvelle partie</button>
+        </div>
+      </section>
+
+      <section class="stats">
+        <h2>Statistiques</h2>
+        <p>
+          Parties: <strong id="games">0</strong> · Victoires en gardant:
+          <strong id="stayWins">0</strong> · Victoires en changeant:
+          <strong id="switchWins">0</strong>
+        </p>
+      </section>
+    </main>
+
+    <script src="script.js"></script>
+  </body>
+</html>
